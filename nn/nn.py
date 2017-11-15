@@ -3,6 +3,8 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.8)
+
 learning_rate = 0.1
 num_steps = 500
 batch_size = 128
@@ -58,7 +60,7 @@ train_op = optimizer.minimize(loss_op)
 init = tf.global_variables_initializer()
 
 # Start training
-with tf.Session() as sess:
+with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
     # Run the initializer
     sess.run(init)
@@ -70,7 +72,7 @@ with tf.Session() as sess:
         sess.run(train_op, feed_dict={X: batch_x.eval(), Y: np.expand_dims(batch_y.eval(), axis=1)})
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
-            loss = sess.run(loss_op, feed_dict={X: batch_x, Y: batch_y})
+            loss = sess.run(loss_op, feed_dict={X: batch_x.eval(), Y: np.expand_dims(batch_y.eval(), axis=1)})
             print("Step " + str(step) + ", Minibatch Loss= " + "{:.4f}".format(loss))
 
     print("Optimization Finished!")
