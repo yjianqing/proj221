@@ -1,24 +1,34 @@
 from __future__ import print_function
-
 import numpy as np
 import tensorflow as tf
 
+def unison_shuffle(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
+
 learning_rate = 0.1
 num_steps = 500
-batch_size = 128
-display_step = 100
+batch_size = 512
+display_step = 5
 
 n_hidden_1 = 256
 n_hidden_2 = 256
 
 trainX = np.load('hdbTrain_X.npy')
+trainY = np.load('hdbTrain_Y.npy')
+trainX, trainY = unison_shuffle(trainX, trainY)
+testX = np.load('hdbTest_X.npy')
+testY = np.load('hdbTest_Y.npy')
+testX, testY = unison_shuffle(testX, testY)
+
 num_input = trainX.shape[1]
 num_examples = trainX.shape[0]
 
 trainX = tf.convert_to_tensor(trainX, np.float32)
-trainY = tf.convert_to_tensor(np.load('hdbTrain_Y.npy'), np.float32)
-testX = tf.convert_to_tensor(np.load('hdbTest_X.npy'), np.float32)
-testY = tf.convert_to_tensor(np.load('hdbTest_Y.npy'), np.float32)
+trainY = tf.convert_to_tensor(trainY, np.float32)
+testX = tf.convert_to_tensor(testX, np.float32)
+testY = tf.convert_to_tensor(testY, np.float32)
 
 num_classes = 1
 
@@ -70,7 +80,7 @@ with tf.Session() as sess:
         sess.run(train_op, feed_dict={X: batch_x.eval(), Y: np.expand_dims(batch_y.eval(), axis=1)})
         if step % display_step == 0 or step == 1:
             # Calculate batch loss and accuracy
-            loss = sess.run(loss_op, feed_dict={X: batch_x, Y: batch_y})
+            loss = sess.run(loss_op, feed_dict={X: batch_x.eval(), Y: np.expand_dims(batch_y.eval(), axis=1)})
             print("Step " + str(step) + ", Minibatch Loss= " + "{:.4f}".format(loss))
 
     print("Optimization Finished!")
