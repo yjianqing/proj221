@@ -13,7 +13,8 @@ parser.add_argument("-r", "--learning_rate", type=float, default=0.1)
 parser.add_argument("-s", "--num_steps", type=int, default=500)
 parser.add_argument("-b", "--batch_size", type=int, default=512)
 parser.add_argument("-l", "--layers", nargs="*", type=int, help="Nodes in each hidden layer e.g. for 2 layers of 256 nodes each: 256 256")
-parser.add_argument("-o", "--output_file", default="model.ckpt", help="Output .ckpt filename")
+parser.add_argument("-i", "--input_basename", default="hdb", help="Input base filename e.g. hdb or private")
+parser.add_argument("-o", "--output_file", help="Output .ckpt filename")
 parser.add_argument("-g", "--use_gpu_options", action="store_true")
 parser.add_argument("-d", "--display_step", type=int, default=10)
 args = parser.parse_args()
@@ -22,7 +23,12 @@ learning_rate = args.learning_rate
 num_steps = args.num_steps
 batch_size = args.batch_size
 display_step = args.display_step
+basename = args.input_basename
 
+output_file = args.output_file
+if output_file is None:
+    output_file = basename + '_model.ckpt'
+    
 gpu_options = None
 if args.use_gpu_options:
     gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.95)
@@ -32,16 +38,17 @@ if n_hidden is None:
     n_hidden = [256, 256]
 
 print("Settings:")
-print("Learning rate: ", learning_rate)
-print("Steps: ", num_steps)
-print("Batch size: ", batch_size)
-print("Hidden layer nodes: ", n_hidden)
+print("Data set:", basename)
+print("Learning rate:", learning_rate)
+print("Steps:", num_steps)
+print("Batch size:", batch_size)
+print("Hidden layer nodes:", n_hidden)
 
-trainX = np.load('hdb_train_X.npy')
-trainY = np.load('hdb_train_Y.npy')
+trainX = np.load(basename + '_train_X.npy')
+trainY = np.load(basename + '_train_Y.npy')
 trainX, trainY = unison_shuffle(trainX, trainY)
-testX = np.load('hdb_test_X.npy')
-testY = np.load('hdb_test_Y.npy')
+testX = np.load(basename + '_test_X.npy')
+testY = np.load(basename + '_test_Y.npy')
 testX, testY = unison_shuffle(testX, testY)
 
 num_input = trainX.shape[1]
@@ -111,7 +118,7 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
 
     print("Optimization Finished!")
     saver = tf.train.Saver()
-    saver.save(sess, "./" + args.output_file)
+    saver.save(sess, "./" + output_file)
     
     i = 0
     while i < test_size:
