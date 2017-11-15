@@ -34,12 +34,12 @@ def process_prices(filename):
 	prices = pd.read_csv(filename, usecols=cols_to_use)
 	return prices.as_matrix()
 
-training_X, training_Y = process_data('hdbTrain.csv', cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
-np.save('hdbTrain_X.npy', training_X)
-np.save('hdbTrain_Y.npy', training_Y)
+#training_X, training_Y = process_data('hdbTrain.csv', cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
+#np.save('hdbTrain_X.npy', training_X)
+#np.save('hdbTrain_Y.npy', training_Y)
 
-# test_X = process_data('hdbTest.csv', cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 14], is_train=False)
-# np.save('hdbTest_X.npy', test_X)
+test_X = process_data('hdbTest.csv', cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 14], is_train=False)
+np.save('hdbTest_X.npy', test_X)
 
-# test_Y = process_prices('hdbTestY.csv')
-# np.save('hbdTest_Y.npy', test_Y)
+test_Y = process_prices('hdbTestY.csv')
+np.save('hbdTest_Y.npy', test_Y)
