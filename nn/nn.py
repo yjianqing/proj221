@@ -1,26 +1,37 @@
 from __future__ import print_function
-
 import numpy as np
 import tensorflow as tf
 
-gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.8)
+def unison_shuffle(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
+
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.9)
 
 learning_rate = 0.1
-num_steps = 500
-batch_size = 128
-display_step = 100
+num_steps = 100
+batch_size = 512
+display_step = 5
 
-n_hidden_1 = 256
-n_hidden_2 = 256
+n_hidden_1 = 128
+n_hidden_2 = 128
+#n_hidden_3 = 256
 
 trainX = np.load('hdbTrain_X.npy')
+trainY = np.load('hdbTrain_Y.npy')
+trainX, trainY = unison_shuffle(trainX, trainY)
+testX = np.load('hdbTest_X.npy')
+testY = np.load('hdbTest_Y.npy')
+testX, testY = unison_shuffle(testX, testY)
+
 num_input = trainX.shape[1]
 num_examples = trainX.shape[0]
 
 trainX = tf.convert_to_tensor(trainX, np.float32)
-trainY = tf.convert_to_tensor(np.load('hdbTrain_Y.npy'), np.float32)
-testX = tf.convert_to_tensor(np.load('hdbTest_X.npy'), np.float32)
-testY = tf.convert_to_tensor(np.load('hdbTest_Y.npy'), np.float32)
+trainY = tf.convert_to_tensor(trainY, np.float32)
+testX = tf.convert_to_tensor(testX, np.float32)
+testY = tf.convert_to_tensor(testY, np.float32)
 
 num_classes = 1
 
@@ -30,11 +41,13 @@ Y = tf.placeholder("float", [None, num_classes])
 weights = {
     'h1': tf.Variable(tf.random_normal([num_input, n_hidden_1])),
     'h2': tf.Variable(tf.random_normal([n_hidden_1, n_hidden_2])),
+    #'h3': tf.Variable(tf.random_normal([n_hidden_2, n_hidden_3])),
     'out': tf.Variable(tf.random_normal([n_hidden_2, num_classes]))
 }
 biases = {
     'b1': tf.Variable(tf.random_normal([n_hidden_1])),
     'b2': tf.Variable(tf.random_normal([n_hidden_2])),
+    #'b3': tf.Variable(tf.random_normal([n_hidden_3])),
     'out': tf.Variable(tf.random_normal([num_classes]))
 }
 
@@ -43,6 +56,7 @@ def neural_net(x):
     layer_1 = tf.add(tf.matmul(x, weights['h1']), biases['b1'])
     # Hidden fully connected layer with 256 neurons
     layer_2 = tf.add(tf.matmul(layer_1, weights['h2']), biases['b2'])
+    #layer_3 = tf.add(tf.matmul(layer_2, weights['h3']), biases['b3'])
     # Output fully connected layer with a neuron for each class
     out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
     return out_layer
@@ -76,6 +90,8 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
             print("Step " + str(step) + ", Minibatch Loss= " + "{:.4f}".format(loss))
 
     print("Optimization Finished!")
-
+    saver = tf.train.Saver()
+    saver.save(sess, './model.ckpt')
+    #print(sess.run(loss_op, feed_dict={X: testX.eval(), Y: np.expand_dims(testY.eval(), axis=1)}))
     # Calculate accuracy for MNIST test images
     #print("Testing Accuracy:", sess.run(accuracy, feed_dict={X: mnist.test.images, Y: mnist.test.labels}))
