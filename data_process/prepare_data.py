@@ -23,14 +23,14 @@ def process_data(filename, base_savename, private, cols_to_use):
 		for name in names:
 			col = data[name]
 			data[name] = (col - col.mean()) / (col.max() - col.min())
-			
-	price_name = 'price'
+	
 	if private:
 		data = convert_one_hots(data, ['typeOfArea', 'propertyType', 'typeOfSale', 'typeOfHousing', 'area'])
 		normalize_columns(data, ['latitude', 'longitude', 'year', 'yearsOfTenure', 'monthsOfTenureLeft', 'completionYear', 'priceIndex'])
+		price_name = 'price'
 	else:    
 		data = convert_one_hots(data, ['town', 'flatType', 'flatModel'])
-		normalize_columns(data, ['latitude', 'longitude', 'year', 'leaseStartDate', 'priceIndex'])
+		normalize_columns(data, ['latitude', 'longitude', 'year', 'leaseStartDate', 'priceIndex', 'areaInSqm', 'floorNum', 'month'])
 		price_name = 'resalePrice'
 	
 	prices = data[price_name].as_matrix()
@@ -49,5 +49,5 @@ def process_data(filename, base_savename, private, cols_to_use):
 	np.save(base_savename+'_test_X.npy', test_X)
 	np.save(base_savename+'_test_Y.npy', test_Y)
 
-#process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
-process_data('privateHousing.csv', 'private', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
+# process_data('privateHousing.csv', 'private', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
