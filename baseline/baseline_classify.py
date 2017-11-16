@@ -2,27 +2,16 @@ import numpy as np
 from sklearn import linear_model
 import matplotlib.pyplot as plt
 
-train_x = np.load('hdb_train_X.npy')
-train_y = np.load('hdb_train_Y.npy')
-test_x = np.load('hdb_test_X.npy')
-test_y = np.load('hdb_test_Y.npy')
-
-batch_size = 512
 
 def loss(x, y):
 	return np.sqrt(np.mean(np.square(x - y)))
 
 def mean_predictor(train_y, test_y):
 	average = np.mean(train_y)
-	i = 0
-	n = test_y.shape[0]
-	print "mean is {}".format(average)
-	while i < n:
-		batch = test_y[i:i+batch_size]
-		predictions = np.full(len(batch), average)
-		rms = loss(predictions, batch)
-		print "Rms for current batch: {}".format(rms)
-		i += batch_size
+	predictions = np.full(len(test_y), average)
+	rms = loss(predictions, test_y)
+	print "Rms for mean prediction: {}".format(rms)
+	return predictions
 
 def least_squares_predictor(train_x, train_y, test_x, test_y):
 	regr = linear_model.LinearRegression()
@@ -35,28 +24,31 @@ def least_squares_predictor(train_x, train_y, test_x, test_y):
 def ridge_regression_predictor(train_x, train_y, test_x, test_y, alpha):
 	regr = linear_model.Ridge(alpha=alpha)
 	regr.fit(train_x, train_y)
-	i = 0
-	n = test_y.shape[0]
-	all_predictions = []
-	while i < n:
-		batch_x = test_x[i:i+batch_size]
-		batch_y = test_y[i:i+batch_size]
-		predictions = regr.predict(batch_x)
-		rms = loss(predictions, batch_y)
-		print "Rms for current batch: {}".format(rms)
-		all_predictions = np.append(all_predictions, predictions)
-		i += batch_size
-	return all_predictions
+	predictions = regr.predict(test_x)
+	rms = loss(predictions, test_y)
+	print "Rms for ridge regression: {}".format(rms)
+	return predictions
 
-print "Linear regression:"
-least_squares_predictions = least_squares_predictor(train_x, train_y, test_x, test_y)
+def plot_least_squares_predictions(basename):
+	train_x = np.load('{}_train_X.npy'.format(basename))
+	train_y = np.load('{}_train_Y.npy'.format(basename))
+	test_x = np.load('{}_test_X.npy'.format(basename))
+	test_y = np.load('{}_test_Y.npy'.format(basename))
 
-percentage_error = np.divide(least_squares_predictions - test_y, test_y)
-positives = [err for err in percentage_error if err >= 0]
-negatives = [err for err in percentage_error if err < 0]
+	print "Linear regression:"
+	least_squares_predictions = least_squares_predictor(train_x, train_y, test_x, test_y)
 
-plt.hist([negatives, positives], color=['tab:blue', 'tab:orange'], bins=100)
-plt.xlabel("Percentage error of predicted price")
-plt.ylabel("Number of predictions per bin")
-plt.title("Linear Least Squares prediction error on hdb dataset")
-plt.show()
+	percentage_error = np.divide(least_squares_predictions - test_y, test_y)
+	positives = [err for err in percentage_error if err >= 0]
+	negatives = [err for err in percentage_error if err < 0]
+
+	plt.hist([negatives, positives], color=['tab:blue', 'tab:orange'], bins=100)
+	plt.xlabel("Percentage error of predicted price")
+	plt.ylabel("Number of predictions per bin")
+	plt.title("Linear Least Squares prediction error on {} dataset".format(basename))
+	plt.savefig("{}_linear_regr_pred_error.png".format(basename))
+	plt.show()
+
+plot_least_squares_predictions('hdb')
+plot_least_squares_predictions('condo')
+plot_least_squares_predictions('landed')
