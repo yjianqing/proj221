@@ -25,7 +25,7 @@ def process_data(filename, base_savename, cols_to_use):
 		for name in names:
 			col = data[name]
 			data[name] = (col - col.mean()) / (col.max() - col.min())
-	normalize_columns(data, ['latitude', 'longitude', 'year', 'leaseStartDate', 'priceIndex'])
+	normalize_columns(data, ['latitude', 'longitude', 'year', 'leaseStartDate', 'priceIndex', 'areaInSqm', 'floorNum', 'month'])
 
 	price_name = 'resalePrice'
 	prices = data[price_name].as_matrix()
