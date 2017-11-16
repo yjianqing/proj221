@@ -120,9 +120,16 @@ with tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) as sess:
     saver = tf.train.Saver()
     saver.save(sess, "./" + output_file)
     
+    fout = open('./rawoutput.csv', 'w')
+    
     i = 0
     while i < test_size:
-        batch_x = testX[i:i+batch_size]
-        batch_y = testY[i:i+batch_size]
-        i += batch_size
-        print(sess.run(loss_op, feed_dict={X: batch_x.eval(), Y: np.expand_dims(batch_y.eval(), axis=1)}))
+        #batch_x = testX[i:i+batch_size]
+        #batch_y = testY[i:i+batch_size]
+        #i += batch_size
+        #print(sess.run(loss_op, feed_dict={X: batch_x.eval(), Y: np.expand_dims(batch_y.eval(), axis=1)}))
+        testRow = testX[i:i+1]
+        fout.write(str(sess.run(logits, feed_dict={X: testRow.eval()})[0][0]) + "," + str(sess.run(testY[i])) + '\n') #warning: SLOW
+        i += 1
+    
+    fout.close()
