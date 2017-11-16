@@ -9,6 +9,10 @@ def process_data(filename, base_savename, private, cols_to_use):
 		data = pd.read_csv(saved_name)
 	else:
 		data = pd.read_csv(filename, usecols=cols_to_use)
+		if base_savename == 'condo':
+			data = data[~data['propertyType'].str.contains("House")].reset_index(drop=True)
+		elif base_savename == 'landed':
+			data = data[data['propertyType'].str.contains("House")].reset_index(drop=True)
 		#sort by "year-month"
 		data = data.sort_values('month').reset_index(drop=True)
 
@@ -67,5 +71,6 @@ def process_data(filename, base_savename, private, cols_to_use):
 	np.save(base_savename+'_test_X.npy', test_X)
 	np.save(base_savename+'_test_Y.npy', test_Y)
 
-data = process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
-# process_data('privateHousing.csv', 'private', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+#process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
+#process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+process_data('privateHousing.csv', 'landed', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
