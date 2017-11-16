@@ -27,18 +27,10 @@ def mean_predictor(train_y, test_y):
 def least_squares_predictor(train_x, train_y, test_x, test_y):
 	regr = linear_model.LinearRegression()
 	regr.fit(train_x, train_y)
-	i = 0
-	n = test_y.shape[0]
-	all_predictions = []
-	while i < n:
-		batch_x = test_x[i:i+batch_size]
-		batch_y = test_y[i:i+batch_size]
-		predictions = regr.predict(batch_x)
-		rms = loss(predictions, batch_y)
-		print "Rms for current batch: {}".format(rms)
-		all_predictions = np.append(all_predictions, predictions)
-		i += batch_size
-	return all_predictions
+	predictions = regr.predict(test_x)
+	rms = loss(predictions, test_y)
+	print "Rms for linear regression: {}".format(rms)
+	return predictions
 
 def ridge_regression_predictor(train_x, train_y, test_x, test_y, alpha):
 	regr = linear_model.Ridge(alpha=alpha)
@@ -56,16 +48,15 @@ def ridge_regression_predictor(train_x, train_y, test_x, test_y, alpha):
 		i += batch_size
 	return all_predictions
 
-print "Predicting mean:"
-mean_predictor(train_y, test_y)
 print "Linear regression:"
 least_squares_predictions = least_squares_predictor(train_x, train_y, test_x, test_y)
-# for alpha in [0.1, 0.3, 0.5, 0.7, 0.9, 1.]:
-# 	print "Ridge regression with alpha = {}".format(alpha)
-# 	ridge_regression_predictions = ridge_regression_predictor(train_x, train_y, test_x, test_y, alpha)
 
-plt.hist(least_squares_predictions - test_y, bins=100)
-plt.xlabel("Predicted price minus actual price")
+percentage_error = np.divide(least_squares_predictions - test_y, test_y)
+positives = [err for err in percentage_error if err >= 0]
+negatives = [err for err in percentage_error if err < 0]
+
+plt.hist([negatives, positives], color=['tab:blue', 'tab:orange'], bins=100)
+plt.xlabel("Percentage error of predicted price")
 plt.ylabel("Number of predictions per bin")
-plt.title("Linear Least Squares prediction differential on hdb dataset")
+plt.title("Linear Least Squares prediction error on hdb dataset")
 plt.show()
