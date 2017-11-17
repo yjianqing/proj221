@@ -44,7 +44,7 @@ def process_data(filename, base_savename, private, cols_to_use):
 		data['completionYear'] = data['completionYear'].replace(-1, np.nan)
 		data['completionYear'] = data['completionYear'].fillna(data['completionYear'].mean())
 		data = convert_one_hots(data, ['typeOfArea', 'propertyType', 'typeOfSale', 'typeOfHousing', 'area'])
-		normalize_columns(data, ['latitude', 'longitude', 'year', 'yearsOfTenure', 'monthsOfTenureLeft', 'completionYear', 'priceIndex'])
+		normalize_columns(data, ['latitude', 'longitude', 'year', 'yearsOfTenure', 'monthsOfTenureLeft', 'completionYear', 'priceIndex', 'areaInSqm', 'floorNum', 'month'])
 		price_name = 'price'
 	else:    
 		test_start_idx = find_test_start_idx(data, 2017, 4)
@@ -75,5 +75,5 @@ def process_data(filename, base_savename, private, cols_to_use):
 	np.save(base_savename+'_test_Y.npy', test_Y)
 
 #process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
-process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
-#process_data('privateHousing.csv', 'landed', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+#process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+process_data('privateHousing.csv', 'landed', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
