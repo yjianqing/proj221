@@ -6,11 +6,16 @@ import matplotlib.pyplot as plt
 def loss(x, y):
 	return np.sqrt(np.mean(np.square(x - y)))
 
+def mape(x, y):
+    return np.median(np.abs((y-x)/y))
+
 def mean_predictor(train_y, test_y):
 	average = np.mean(train_y)
 	predictions = np.full(len(test_y), average)
 	rms = loss(predictions, test_y)
 	print "Rms for mean prediction: {}".format(rms)
+	mdape = mape(predictions, test_y)
+	print "Mape for linear regression: {}".format(mdape)
 	return predictions
 
 def least_squares_predictor(train_x, train_y, test_x, test_y):
@@ -19,6 +24,8 @@ def least_squares_predictor(train_x, train_y, test_x, test_y):
 	predictions = regr.predict(test_x)
 	rms = loss(predictions, test_y)
 	print "Rms for linear regression: {}".format(rms)
+	mdape = mape(predictions, test_y)
+	print "Mape for linear regression: {}".format(mdape)
 	return predictions
 
 def ridge_regression_predictor(train_x, train_y, test_x, test_y, alpha):
@@ -27,6 +34,8 @@ def ridge_regression_predictor(train_x, train_y, test_x, test_y, alpha):
 	predictions = regr.predict(test_x)
 	rms = loss(predictions, test_y)
 	print "Rms for ridge regression: {}".format(rms)
+	mdape = mape(predictions, test_y)
+	print "Mape for linear regression: {}".format(mdape)
 	return predictions
 
 def plot_least_squares_predictions(basename):
