@@ -1,15 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-data_prefix = 'hdb'
+#data_prefix = 'hdb'
+#data_prefix = 'condo'
+data_prefix = 'landed'
 prices_train = np.load(data_prefix+'_train_Y.npy')
 prices_test = np.load(data_prefix+'_test_Y.npy')
 
 ###make bins based on training data, not test data
 bin_width = 20000
 
-smallest = int(np.min(prices_train))
-largest = int(0.5+np.max(prices_train))
+if data_prefix is 'hdb':
+    smallest = int(np.min(prices_train))
+    largest = int(0.5+np.max(prices_train))
+else:
+    smallest = int(np.percentile(prices_train,1))
+    largest = int(np.percentile(prices_train,99))
+
 bins = range(smallest, largest+bin_width, bin_width)
 classes_train = np.digitize(prices_train, bins)
 
@@ -22,7 +29,11 @@ while np.count_nonzero(classes_train==max_bin) < required_samples:
 	classes_train = [x if x != max_bin else x-1 for x in classes_train]
 	max_bin = np.max(classes_train)
 
-largest = int(0.5+np.max(prices_test))
+if data_prefix is 'hdb':
+    largest = int(0.5+np.max(prices_test))
+else:
+    largest = int(np.percentile(prices_test,99))
+    
 bins = range(smallest, largest+bin_width, bin_width)
 classes_test = [x if x <= max_bin else max_bin for x in np.digitize(prices_test, bins)]
 
