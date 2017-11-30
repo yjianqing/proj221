@@ -47,13 +47,16 @@ def plot_least_squares_predictions(basename):
 	print "Linear regression:"
 	least_squares_predictions = least_squares_predictor(train_x, train_y, test_x, test_y)
 
-	percentage_error = np.divide(least_squares_predictions - test_y, test_y)
+	percentage_error = 100*np.divide(least_squares_predictions - test_y, test_y)
 	positives = [err for err in percentage_error if err >= 0]
 	negatives = [err for err in percentage_error if err < 0]
-
-	plt.hist([negatives, positives], color=['tab:blue', 'tab:orange'], bins=100)
-	plt.xlabel("Percentage error of predicted price")
-	plt.ylabel("Number of predictions per bin")
+	if max(positives) > 100 or min(negatives) < -100:
+		plt.xlim(xmin=-100, xmax=100)
+	binwidth = 1
+	bins=range(int(min(negatives)), int(max(positives) + binwidth), binwidth)
+	plt.hist([negatives, positives], color=['tab:blue', 'tab:orange'], bins=bins)
+	plt.xlabel("Percentage of overprediction")
+	plt.ylabel("Number of records")
 	plt.title("Linear Least Squares prediction error on {} dataset".format(basename))
 	plt.savefig("{}_linear_regr_pred_error.png".format(basename))
 	plt.show()

@@ -55,25 +55,17 @@ def process_data(filename, base_savename, private, cols_to_use):
 	prices = data[price_name].as_matrix()
 	data = data.drop(price_name, axis=1)
 
-	# test_prop = 0.01
-	# n = int(len(data.index) * test_prop)
-
 	print "starting test index: {}".format(test_start_idx)
 	train_X = data.iloc[:test_start_idx]
 	train_Y = prices[:test_start_idx]
 	test_X = data.iloc[test_start_idx:]
 	test_Y = prices[test_start_idx:]
 
-	# train_X = data.iloc[:-n]
-	# train_Y = prices[:-n]
-	# test_X = data.iloc[-n:]
-	# test_Y = prices[-n:]
-
 	np.save(base_savename+'_train_X.npy', train_X)
 	np.save(base_savename+'_train_Y.npy', train_Y)
 	np.save(base_savename+'_test_X.npy', test_X)
 	np.save(base_savename+'_test_Y.npy', test_Y)
 
-#process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
-#process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+# process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
+process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
 process_data('privateHousing.csv', 'landed', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
