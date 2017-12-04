@@ -37,6 +37,7 @@ num_classes = np.max(Y_train) + 1
 assert num_classes > np.max(Y_test)
 # convert class vectors to binary class matrices
 Y_train = keras.utils.to_categorical(Y_train, num_classes)
+Y_test = keras.utils.to_categorical(Y_test, num_classes)
 
 def run_instance(data, epochs=10, dropout=0.1, batch_size=32, num_hidden=1, hidden_layer_size=128, model_save_file='cached_NN.h5', train_verbose=1):
 	X_train, Y_train, X_test, Y_test = data
@@ -145,4 +146,4 @@ else:
 	hidden_layer_size=128
 
 raw_predictions = run_instance((X_train, Y_train, X_test, Y_test), epochs, dropout, batch_size, num_hidden, hidden_layer_size, model_save_file)
-conservative_predict(raw_predictions, Y_test)
+conservative_predict(raw_predictions, np.load(data_file_prefix+'_binned_test_Y.npy'))
