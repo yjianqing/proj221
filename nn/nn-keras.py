@@ -11,6 +11,7 @@ from sklearn.model_selection import KFold
 from sklearn.model_selection import cross_val_score
 import argparse
 import matplotlib.pyplot as plt
+import pickle as pk
 
 def unison_shuffle(a, b):
     assert len(a) == len(b)
@@ -30,6 +31,7 @@ Y_test = np.load(data_file_prefix+'_binned_test_Y.npy')
 
 num_features = X_train.shape[1]
 num_classes = np.max(Y_train) + 1
+print(num_features, num_classes)
 assert num_classes > np.max(Y_test)
 # convert class vectors to binary class matrices
 Y_train = keras.utils.to_categorical(Y_train, num_classes)
@@ -70,15 +72,6 @@ def run_instance(data, epochs=10, dropout=0.1, batch_size=32, num_hidden=1, hidd
 	model.save(model_save_file)
 	return raw_predictions
 
-# for num_hidden in range(1, 3):
-# 	for hidden_layer_size in [64, 128, 256, 512]:
-# 		for batch_size in [32, 128, 512]:
-# 			for epochs in [1, 10, 20, 50]:
-# 				for dropout in [0., .1, .2, .3]:
-# 					save_name = 'model-{},{},{},{},{}.h5'.format(epochs, dropout, batch_size, num_hidden, hidden_layer_size).replace('.', '')
-# 					run_instance((X_train, Y_train, X_test, Y_test), epochs, dropout, \
-# 									batch_size, num_hidden, hidden_layer_size, save_name)
-
 def get_price(raw_predictions, test_prices, bin_width = 20000):
 	print(bin_width)
 	bin_prices = np.array(range(num_classes))*bin_width + bin_width
@@ -106,7 +99,15 @@ def get_price(raw_predictions, test_prices, bin_width = 20000):
 
 def conservative_predict(raw_predictions, test_prices, bin_width=20000):
 	bin_prices = np.array(range(num_classes))*bin_width
+
+	f = open('../data_process/hdb_bin_to_price.p', 'rb') 
+	bin_to_average_price = pk.load(f)
+	f.close()
+	for bin in bin_to_average_price:
+		bin_prices[bin] = bin_to_average_price[bin]
+
 	predicted_prices = np.dot(raw_predictions, bin_prices) + bin_width
+
 	num_predicted = 0
 	num_skipped = 0
 	rms = 0
@@ -147,7 +148,16 @@ def conservative_predict(raw_predictions, test_prices, bin_width=20000):
 	plt.show()
 	return predicted_prices
 
-if 'hdb' in data_file_prefix:
+if 'hdb_appended' in data_file_prefix:
+	print("hdb_appended")
+	bin_width = 20000
+	model_save_file = 'hdb_appended_model_saved.h5'
+	epochs = 10
+	dropout = 0.1
+	batch_size = 256
+	num_hidden = 2
+	hidden_layer_size = 256
+elif 'hdb' in data_file_prefix:
 	print("hdb")
 	bin_width = 20000
 	model_save_file = 'hdb_model_saved.h5'
@@ -182,7 +192,6 @@ else:
 
 
 test_prices = np.load(data_file_prefix+'_test_Y.npy')
-raw_predictions = np.load('raw.npy')
-# raw_predictions = run_instance((X_train, Y_train, X_test, Y_test), epochs, dropout, batch_size, num_hidden, hidden_layer_size, model_save_file)
+raw_predictions = run_instance((X_train, Y_train, X_test, Y_test), epochs, dropout, batch_size, num_hidden, hidden_layer_size, model_save_file)
 predicted_prices = get_price(raw_predictions, test_prices, bin_width)
 conservative_preds = conservative_predict(raw_predictions, test_prices, bin_width)
