@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import pickle as pk
 
-data_prefix = 'hdb'
+data_prefix = 'hdb_appended'
 # data_prefix = 'condo'
 # data_prefix = 'landed'
 prices_train = np.load(data_prefix+'_train_Y.npy')
@@ -14,7 +14,7 @@ bin_width = 20000
 # bin_width = int(1e6)
 
 
-if data_prefix is 'hdb':
+if data_prefix is 'hdb_appended':
     smallest = int(np.min(prices_train))
     largest = int(0.5+np.max(prices_train))
 else:
@@ -33,7 +33,7 @@ while np.count_nonzero(classes_train==max_bin) < required_samples:
 	classes_train = [x if x != max_bin else x-1 for x in classes_train]
 	max_bin = np.max(classes_train)
 
-if data_prefix is 'hdb':
+if data_prefix is 'hdb_appended':
     largest = int(0.5+np.max(prices_test))
 else:
     largest = int(np.percentile(prices_test,99))
