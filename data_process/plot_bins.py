@@ -2,9 +2,11 @@ from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 
-bin_width = 20000
 
-#data_prefix = 'hdb'
+# bin_width = 20000
+# data_prefix = 'hdb'
+
+bin_width = int(1e6)
 #data_prefix = 'condo'
 data_prefix = 'landed'
 

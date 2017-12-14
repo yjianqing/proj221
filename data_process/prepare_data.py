@@ -46,10 +46,21 @@ def process_data(filename, base_savename, private, cols_to_use):
 		data = convert_one_hots(data, ['typeOfArea', 'propertyType', 'typeOfSale', 'typeOfHousing', 'area'])
 		normalize_columns(data, ['latitude', 'longitude', 'year', 'yearsOfTenure', 'monthsOfTenureLeft', 'completionYear', 'priceIndex', 'areaInSqm', 'floorNum', 'month'])
 		price_name = 'price'
-	else:    
+	
+	else:
 		test_start_idx = find_test_start_idx(data, 2017, 4)
 		data = convert_one_hots(data, ['town', 'flatType', 'flatModel'])
-		normalize_columns(data, ['latitude', 'longitude', 'year', 'leaseStartDate', 'priceIndex', 'areaInSqm', 'floorNum', 'month'])
+		columns = ['latitude', 'longitude', 'year', 'leaseStartDate', 'priceIndex', 'areaInSqm', 'floorNum', 'month']
+		if base_savename == 'hdb_appended':
+			for i in range(appended_data_num):
+				columns.append('prevTransPricePerSqm'+str(i))
+				columns.append('prevTransDiffInMonthYearInt'+str(i))
+				columns.append('prevTransDiffInFloorNum'+str(i))
+				columns.append('prevTransDiffInAreaInSqm'+str(i))
+				columns.append('prevTransDiffTenure'+str(i))
+				columns.append('prevTransDistance'+str(i))
+
+		normalize_columns(data, columns)
 		price_name = 'resalePrice'
 
 	prices = data[price_name].as_matrix()
@@ -67,5 +78,13 @@ def process_data(filename, base_savename, private, cols_to_use):
 	np.save(base_savename+'_test_Y.npy', test_Y)
 
 # process_data('hdbHousing.csv', 'hdb', False, cols_to_use = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15])
-process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
-process_data('privateHousing.csv', 'landed', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+# process_data('privateHousing.csv', 'condo', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+# process_data('privateHousing.csv', 'landed', True, cols_to_use = [4, 5, 6, 10, 13, 14, 19, 20, 21, 22, 23, 25, 26, 27, 28])
+
+cols = [1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 15]
+appended_data_start = 20
+appended_data_num = 5
+appended_data_len = 6
+cols += list(range(appended_data_start, appended_data_start + appended_data_num * appended_data_len))
+process_data('allHdbHousingForTraining4.csv', 'hdb_appended', False, cols_to_use = cols)
+
