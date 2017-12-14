@@ -214,3 +214,15 @@ val_acc_h, = plt.plot(range(1, epochs+1), val_acc, label='Validation Set Accurac
 plt.legend(handles=[acc_h, val_acc_h])
 plt.savefig("accuracy_v_epochs.png")
 plt.show()
+
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+plt.title("Training and Validation Set Loss Versus Epochs")
+plt.ylabel("Loss")
+plt.xlabel("Epochs")
+loss_h, = plt.plot(range(1, epochs+1), loss, label='Training Set Loss')
+val_loss_h, = plt.plot(range(1, epochs+1), val_loss, label='Validation Set Loss')
+plt.legend(handles=[loss_h, val_loss_h])
+plt.savefig("loss_v_epochs.png")
+plt.show()
